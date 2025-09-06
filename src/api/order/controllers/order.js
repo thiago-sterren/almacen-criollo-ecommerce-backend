@@ -122,7 +122,6 @@ module.exports = {
         let mpResponse
         try {
           mpResponse = await preferenceClient.create({ body: preference })
-          console.log("Preferencia creada:", mpResponse)
         } catch (err) {
           console.error("Error creando preferencia en MP:", err)
           ctx.throw(500, "Error creando preferencia en Mercado Pago")
@@ -159,11 +158,6 @@ module.exports = {
       const signature = ctx.request.headers['x-signature'] || ctx.request.headers['x-hub-signature-256']
       const requestId = ctx.request.headers['x-request-id']
       const body = ctx.request.body
-      console.log("📩 Webhook recibido:", body)
-
-      // Log para ver el header y el body recibido
-      console.log("📝 x-signature header:", signature)
-      console.log("📦 ctx.request.body (parseado):", body)
 
       // dividir x-signature (en partes v1= y ts=)
       const signatureParts = signature?.split(',')
@@ -173,8 +167,6 @@ module.exports = {
         console.warn('⚠️ Firma v1 o timestamp no encontrados en x-signature')
         return ctx.unauthorized('Firma inválida')
       }
-      console.log("📊 signatureV1:", signatureV1)
-      console.log("📊 timestampPart:", timestampPart)
 
       // Construyo el manifest
       const dataId = body?.data?.id?.toString().toLowerCase() // si es alfanumérico, debe ir en minúsculas
@@ -182,22 +174,17 @@ module.exports = {
       if (requestId) {
         manifest = `id:${dataId};request-id:${requestId};ts:${timestampPart};`
       }
-      console.log("📄 Manifest para firma:", manifest)
 
       // Genera la firma local
       const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(manifest)
         .digest('hex')
-
-      console.log("🔒 expectedSignature:", expectedSignature)
       
       const isValid = crypto.timingSafeEqual(
         Buffer.from(signatureV1, 'utf8'),
         Buffer.from(expectedSignature, 'utf8')
       )
-      console.log("📊 signatureV1 length:", Buffer.from(signatureV1, 'utf8').length)
-      console.log("📊 expectedSignature length:", Buffer.from(expectedSignature, 'utf8').length)
 
       if (!isValid) {
         console.warn('⚠️ Firma de webhook inválida')
@@ -247,7 +234,6 @@ module.exports = {
 
       // Idempotencia: Si el estado ya está actualizado, no hacer nada
       if (order.orderStatus === orderStatus) {
-        console.log(`ℹ️ Orden ${order.id} ya está en estado: ${orderStatus}`)
         ctx.send({ received: true })
         return
       }
@@ -258,7 +244,6 @@ module.exports = {
         data: { orderStatus },
       })
 
-      console.log(`📦 Orden ${order.id} actualizada a estado: ${orderStatus}`)
       ctx.send({ received: true })
     } catch (error) {
       console.error("💥 Error en webhook Mercado Pago:", error)

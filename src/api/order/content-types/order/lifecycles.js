@@ -3,8 +3,6 @@ module.exports = {
     try {
       const { data } = event.params
 
-      console.log("🔍 Validando pedido con orderToken:", data.orderToken, "a las", new Date().toISOString())
-
       // 🔐 Validación de token único
       if (!data.orderToken) throw new Error("Falta el token de orden.")
 
@@ -67,8 +65,6 @@ module.exports = {
           throw new Error(`Stock insuficiente para ${product.productName}. Disponible: ${product.stock}, solicitado: ${item.quantity}`)
         }
       }
-
-      console.log("✅ Pedido validado y listo para crear:", data.products)
     } catch (err) {
       console.error("🧨 Error completo en beforeCreate:", err)
       throw new Error(err?.message || "Error interno al validar la orden.")
@@ -78,8 +74,6 @@ module.exports = {
   async afterCreate(event) {
     try {
       const { result } = event
-
-      console.log(`📦 Pedido creado con ID: ${result.id} y token: ${result.orderToken}`)
 
       if (!result.products || !Array.isArray(result.products)) {
         console.warn("⚠️ La orden creada no contiene productos.")
@@ -120,8 +114,6 @@ module.exports = {
             console.warn(`⚠️ Stock bajo para ${product.productName}: ${newStock} unidades restantes.`)
             // Opcional: enviar notificación por correo o a un sistema de monitoreo
           }
-
-          console.log(`✅ Stock actualizado para ${product.slug}: ${product.stock} → ${newStock}`)
         }
       })
 
@@ -136,7 +128,6 @@ module.exports = {
     // Si el orderStatus se actualiza (por webhook de MP o manualmente) a "cancelled"
     if (result.orderStatus === "cancelled") {
       await strapi.service("api::order.order").restockProducts(result)
-      console.log(`🚫 Orden ${result.id} cancelada, stock restaurado`)
     }
   }
 }

@@ -40,7 +40,6 @@ module.exports = createCoreService("api::order.order", ({ strapi }) => ({
               { data: { stock: newStock } },
               { transacting: trx }
           )
-          console.log(`✅ Stock restaurado para ${item.productName}: +${qty} (Nuevo stock: ${newStock})`)
         } catch (error) {
             console.error(`❌ Error actualizando ${item.productName}:`, error)
         }
