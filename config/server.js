@@ -17,4 +17,9 @@ module.exports = ({ env }) => ({
       ],
     },
   },
+  transfer: {
+    remote: {
+      enabled: true,
+    },
+  },
 });
