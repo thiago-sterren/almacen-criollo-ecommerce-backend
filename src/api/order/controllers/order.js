@@ -159,6 +159,9 @@ module.exports = {
       const requestId = ctx.request.headers['x-request-id']
       const body = ctx.request.body
 
+      console.log("Headers recibidos:", { signature, requestId });
+      console.log("Body recibido:", body);
+
       // dividir x-signature (en partes v1= y ts=)
       const signatureParts = signature?.split(',')
       const timestampPart = signatureParts?.find(part => part.startsWith('ts='))?.split('=')[1]
@@ -175,6 +178,8 @@ module.exports = {
         manifest = `id:${dataId};request-id:${requestId};ts:${timestampPart};`
       }
 
+      console.log("Manifest generado:", manifest);
+
       // Genera la firma local
       const expectedSignature = crypto
         .createHmac('sha256', secret)
@@ -186,6 +191,9 @@ module.exports = {
         Buffer.from(expectedSignature, 'utf8')
       )
 
+      console.log("Firma esperada:", expectedSignature);
+      console.log("Firma válida:", isValid);
+
       if (!isValid) {
         console.warn('⚠️ Firma de webhook inválida')
         return ctx.unauthorized('Firma inválida')
@@ -193,33 +201,40 @@ module.exports = {
 
       const { type, data } = body
       if (!type || !data?.id) {
+        console.warn("⚠️ Tipo o ID de datos no encontrados en el body");
         return ctx.badRequest("Webhook inválido")
       }
 
+      console.log("Consultando pago con ID:", data.id);
       let payment
       try {
         // 🔹 Usamos el PaymentClient del nuevo SDK
         payment = await paymentClient.get({ id: data.id })
+        console.log("Pago obtenido:", payment.status);
       } catch (error) {
         console.error("❌ Error al consultar pago:", error)
         return ctx.badRequest("Error al consultar el pago")
       }
 
       if (!payment) {
+        console.warn("⚠️ No se pudo obtener el pago");
         return ctx.badRequest("No se pudo obtener el pago")
       }
 
       // Buscar la orden en Strapi usando el `mercadoPagoId`
       const mercadoPagoId = payment.id
+      console.log("Buscando orden con mercadoPagoId:", mercadoPagoId);
       const orders = await strapi.db.query("api::order.order").findMany({
         where: { mercadoPagoId }, 
       })
 
       if (!orders.length) {
+        console.warn("⚠️ Orden no encontrada con mercadoPagoId:", mercadoPagoId);
         return ctx.notFound("Orden no encontrada")
       }
 
       const order = orders[0]
+      console.log("Orden encontrada:", order.id);
 
       // Mapeo de estados Mercado Pago → sistema interno
       const statusMap = {
@@ -234,10 +249,12 @@ module.exports = {
 
       // Idempotencia: Si el estado ya está actualizado, no hacer nada
       if (order.orderStatus === orderStatus) {
+        console.log("Estado ya actualizado, no se realiza cambio:", orderStatus);
         ctx.send({ received: true })
         return
       }
 
+      console.log("Actualizando estado de la orden a:", orderStatus);
       // Actualizar estado de la orden
       await strapi.db.query("api::order.order").update({
         where: { id: order.id },
