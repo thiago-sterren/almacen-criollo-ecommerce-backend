@@ -117,7 +117,7 @@ module.exports = {
           external_reference: String(orderToken),
           payment_methods: {
             excluded_payment_methods: [], // No excluye nada
-            excluded_payment_types: [{ id: "ticket" }], // No excluye nada
+            excluded_payment_types: [{ id: "ticket" }],
             installments: 1, // Opcional: límite de cuotas
           },
         }
