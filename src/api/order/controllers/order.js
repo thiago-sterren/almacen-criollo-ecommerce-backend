@@ -114,7 +114,12 @@ module.exports = {
             pending: `${process.env.FRONTEND_URL}/order/${orderToken}`,
           },
           auto_return: "approved",
-          external_reference: String(orderToken)
+          external_reference: String(orderToken),
+          payment_methods: {
+            excluded_payment_methods: [], // No excluye nada
+            excluded_payment_types: [], // No excluye nada
+            installments: 1, // Opcional: límite de cuotas
+          },
         }
         
         // Instanciar el módulo de preferencias
