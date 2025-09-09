@@ -138,8 +138,7 @@ module.exports = {
           id: order.id,
           orderToken: orderToken,
           init_point: mpResponse.init_point,
-          message: "Pedido confirmado. Te estamos redirigiendo a la pasarela de pago de Mercado Pago.",
-          sandbox_init_point: mpResponse.sandbox_init_point
+          message: "Pedido confirmado. Te estamos redirigiendo a la pasarela de pago de Mercado Pago."
         }
       }
 
@@ -221,20 +220,37 @@ module.exports = {
         return ctx.badRequest("No se pudo obtener el pago")
       }
 
-      // Buscar la orden en Strapi usando el `mercadoPagoId`
-      const mercadoPagoId = payment.id
-      console.log("Buscando orden con mercadoPagoId:", mercadoPagoId);
+      // const mercadoPagoId = payment.id
+      // console.log("Buscando orden con mercadoPagoId:", mercadoPagoId);
+      // Buscar la orden en Strapi usando external_reference (=orderToken) desde el pago
+      const externalReference = payment.external_reference
+      if (!externalReference) {
+        console.warn("⚠️ external_reference no encontrado en el pago");
+        return ctx.badRequest("No se pudo identificar la orden");
+      }
+
+      console.log("Buscando orden con external_reference:", externalReference);
       const orders = await strapi.db.query("api::order.order").findMany({
-        where: { mercadoPagoId }, 
+        //where: { mercadoPagoId },
+        where: { orderToken: externalReference } 
       })
 
       if (!orders.length) {
-        console.warn("⚠️ Orden no encontrada con mercadoPagoId:", mercadoPagoId);
+        console.warn("⚠️ Orden no encontrada con orderToken:", externalReference);
         return ctx.notFound("Orden no encontrada")
       }
 
       const order = orders[0]
       console.log("Orden encontrada:", order.id);
+
+      // Actualizar mercadoPagoId con el payment.id
+      if (order.mercadoPagoId !== payment.id) {
+        await strapi.db.query("api::order.order").update({
+          where: { id: order.id },
+          data: { mercadoPagoId: payment.id },
+        });
+        console.log("Actualizado mercadoPagoId a:", payment.id);
+      }
 
       // Mapeo de estados Mercado Pago → sistema interno
       const statusMap = {
