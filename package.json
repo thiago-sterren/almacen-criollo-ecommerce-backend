@@ -22,6 +22,7 @@
     "@strapi/data-transfer": "5.23.3",
     "@strapi/plugin-cloud": "5.23.3",
     "@strapi/plugin-users-permissions": "5.23.1",
+    "@strapi/provider-upload-cloudinary": "^5.23.4",
     "@strapi/strapi": "5.23.3",
     "@strapi/types": "5.23.3",
     "@strapi/utils": "^5.23.1",
