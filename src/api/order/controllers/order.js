@@ -1,7 +1,7 @@
 "use strict"
 
 // Para envío de mails
-//const { Resend } = require("resend")
+const { Resend } = require("resend")
 
 // Importar la clase de Mercado Pago
 const { MercadoPagoConfig, Preference, Payment } = require("mercadopago")
@@ -15,7 +15,7 @@ const paymentClient = new Payment(client)
 
 const crypto = require("crypto")
 
-//const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 function formatPrice(price) {
     const priceFormated = new Intl.NumberFormat("es-AR", {
@@ -67,23 +67,28 @@ module.exports = {
       
       // 2. Si el método es efectivo -> devolver confirmación
       if (paymentMethod === "cash") {
-        // (async function () {
-        //   const { data, error } = await resend.emails.send({
-        //     from: 'Acme <onboarding@resend.dev>',
-        //     to: ['almacencriolloecommerce@gmail.com'],
-        //     subject: 'Compra realizada',
-        //     html: `<strong>¡Gracias por elegirnos, ${firstName} ${lastName}! ${deliveryMethod === "pickup" ?
-        //        `Ya podés pasar a realizar el pago de ${formatPrice(totalPrice)} por nuestro local en J. B. Justo 361 y retirar tu orden.` :
-        //        `Te contactaremos para acordar detalles de la entrega a realizar en ${address}. Total a pagar en el momento de entrega: ${formatPrice(totalPrice)}.`
-        //       }</strong>`,
-        //   })
+        (async function () {
+          const { data, error } = await resend.emails.send({
+            from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
+            to: [email],
+            subject: 'Compra realizada',
+            html: `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
+              <p>${deliveryMethod === "pickup" ?
+                `Ya podés pasar a retirar tu orden y realizar el pago de ${formatPrice(totalPrice)} por nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.` :
+                `Te contactaremos para acordar detalles de la entrega a realizar en ${address}. Total a pagar en el momento de entrega: ${formatPrice(totalPrice)}.`
+              }
+              <br>
+              <br>
+              Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+              </p>`,
+          })
 
-        //   if (error) {
-        //     return console.error({ error })
-        //   }
+          if (error) {
+            return console.error({ error })
+          }
 
-        //   console.log({ data })
-        // })()
+          console.log({ data })
+        })()
 
         ctx.status = 201
         return {
