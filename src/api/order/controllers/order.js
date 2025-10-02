@@ -143,28 +143,28 @@ module.exports = {
         })
 
         // Enviar email de "orden realizada con Mercado Pago"
-        (async function () {
-          const orderLink = `${process.env.FRONTEND_URL}/order/${orderToken}`
-          const { data, error } = await resend.emails.send({
-            from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
-            to: [email],
-            subject: 'Orden realizada',
-            html: `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
-              <p>Estamos esperando que Mercado Pago nos haga llegar la confirmación de tu pago, mientras tanto, <strong>te solicitamos que nos envíes tu comprobante de pago vía WhatsApp o Instagram.</strong>
-              <br>
-              <strong>Aclaración:</strong> si no recibimos la confirmación dentro de las 48hs posteriores a la creación de la orden, cancelaremos la misma.
-              <br>
-              Te notificaremos por esta vía con novedades sobre el estado tu pedido, aunque podés guardar este link para hacer el seguimiento: <a href=${orderLink}>${orderLink}</a>.
-              <br><br>
-              Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
-              </p>`,
-          })
+        // (async function () {
+        //   const orderLink = `${process.env.FRONTEND_URL}/order/${orderToken}`
+        //   const { data, error } = await resend.emails.send({
+        //     from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
+        //     to: [email],
+        //     subject: 'Orden realizada',
+        //     html: `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
+        //       <p>Estamos esperando que Mercado Pago nos haga llegar la confirmación de tu pago, mientras tanto, <strong>te solicitamos que nos envíes tu comprobante de pago vía WhatsApp o Instagram.</strong>
+        //       <br>
+        //       <strong>Aclaración:</strong> si no recibimos la confirmación dentro de las 48hs posteriores a la creación de la orden, cancelaremos la misma.
+        //       <br>
+        //       Te notificaremos por esta vía con novedades sobre el estado tu pedido, aunque podés guardar este link para hacer el seguimiento: <a href=${orderLink}>${orderLink}</a>.
+        //       <br><br>
+        //       Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+        //       </p>`,
+        //   })
 
-          if (error) {
-            return console.error({ error })
-          }
-          console.log({ data })
-        })()
+        //   if (error) {
+        //     return console.error({ error })
+        //   }
+        //   console.log({ data })
+        // })()
 
         ctx.status = 201
         return {
@@ -289,31 +289,31 @@ module.exports = {
       })
 
       // Enviar email SOLO si el estado se actualizó a "paid"
-      if (orderStatus === "paid") {
-        (async function () {
-          const orderLink = `${process.env.FRONTEND_URL}/order/${order.orderToken}`
-          const { data, error } = await resend.emails.send({
-            from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
-            to: [order.email],
-            subject: 'Pago confirmado',
-            html: `<strong>¡Ya está todo listo ${order.firstName}!</strong>
-              <p>Recibimos la confirmación de pago de Mercado Pago, <strong>recordá enviarnos tu comprobante de pago vía WhatsApp o Instagram si es que aún no lo hiciste.</strong>
-              ${
-                order.deliveryMethod === "pickup"
-                  ? `Ya podés pasar a retirar tu orden en nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.`
-                  : `Te contactaremos para acordar detalles de la entrega a realizar en ${order.address}.`
-              }
-              <br><br>
-              Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
-              </p>`,
-          })
+      // if (orderStatus === "paid") {
+      //   (async function () {
+      //     const orderLink = `${process.env.FRONTEND_URL}/order/${order.orderToken}`
+      //     const { data, error } = await resend.emails.send({
+      //       from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
+      //       to: [order.email],
+      //       subject: 'Pago confirmado',
+      //       html: `<strong>¡Ya está todo listo ${order.firstName}!</strong>
+      //         <p>Recibimos la confirmación de pago de Mercado Pago, <strong>recordá enviarnos tu comprobante de pago vía WhatsApp o Instagram si es que aún no lo hiciste.</strong>
+      //         ${
+      //           order.deliveryMethod === "pickup"
+      //             ? `Ya podés pasar a retirar tu orden en nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.`
+      //             : `Te contactaremos para acordar detalles de la entrega a realizar en ${order.address}.`
+      //         }
+      //         <br><br>
+      //         Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+      //         </p>`,
+      //     })
 
-          if (error) {
-            return console.error({ error })
-          }
-          console.log({ data })
-        })()
-      }
+      //     if (error) {
+      //       return console.error({ error })
+      //     }
+      //     console.log({ data })
+      //   })()
+      // }
 
       ctx.send({ received: true })
     } catch (error) {
