@@ -80,17 +80,19 @@ module.exports = {
       
       // 2. Si el método es efectivo -> devolver confirmación
       if (paymentMethod === "cash") {
+        const emailHTML = `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
+        <p>${deliveryMethod === "pickup" ?
+          `Ya podés pasar a retirar tu orden y realizar el pago de ${formatPrice(totalPrice)} por nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.` :
+          `Te contactaremos para acordar detalles de la entrega a realizar en ${address}. Total a pagar en el momento de entrega: ${formatPrice(totalPrice)}.`
+        }
+        <br><br>
+        Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+        </p>`
+
         sendEmail(
           email,
           'Orden realizada',
-          `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
-          <p>${deliveryMethod === "pickup" ?
-            `Ya podés pasar a retirar tu orden y realizar el pago de ${formatPrice(totalPrice)} por nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.` :
-            `Te contactaremos para acordar detalles de la entrega a realizar en ${address}. Total a pagar en el momento de entrega: ${formatPrice(totalPrice)}.`
-          }
-          <br><br>
-          Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
-          </p>`
+          emailHTML
         )
 
         ctx.status = 201
@@ -148,18 +150,20 @@ module.exports = {
 
         // Enviar email de "orden realizada con Mercado Pago"
         const orderLink = `${process.env.FRONTEND_URL}/order/${orderToken}`
+        const emailHTML = `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
+        <p>Estamos esperando que Mercado Pago nos haga llegar la confirmación de tu pago, mientras tanto, <strong>te solicitamos que nos envíes tu comprobante de pago vía WhatsApp o Instagram.</strong>
+        <br>
+        <strong>Aclaración:</strong> si no recibimos la confirmación dentro de las 48hs posteriores a la creación de la orden, cancelaremos la misma.
+        <br>
+        Te notificaremos por esta vía con novedades sobre el estado tu pedido, aunque podés guardar este link para hacer el seguimiento: <a href=${orderLink}>${orderLink}</a>.
+        <br><br>
+        Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+        </p>`
+
         sendEmail(
           email,
           'Orden realizada',
-          `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
-          <p>Estamos esperando que Mercado Pago nos haga llegar la confirmación de tu pago, mientras tanto, <strong>te solicitamos que nos envíes tu comprobante de pago vía WhatsApp o Instagram.</strong>
-          <br>
-          <strong>Aclaración:</strong> si no recibimos la confirmación dentro de las 48hs posteriores a la creación de la orden, cancelaremos la misma.
-          <br>
-          Te notificaremos por esta vía con novedades sobre el estado tu pedido, aunque podés guardar este link para hacer el seguimiento: <a href=${orderLink}>${orderLink}</a>.
-          <br><br>
-          Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
-          </p>`
+          emailHTML
         )
 
         ctx.status = 201
@@ -286,20 +290,22 @@ module.exports = {
 
       // Enviar email SOLO si el estado se actualizó a "paid"
       if (orderStatus === "paid") {
+        const emailHTML = `<strong>¡Ya está todo listo ${order.firstName}!</strong>
+        <p>Recibimos la confirmación de pago de Mercado Pago, <strong>recordá enviarnos tu comprobante de pago vía WhatsApp o Instagram si es que aún no lo hiciste.</strong>
+        <br>
+        ${
+          order.deliveryMethod === "pickup"
+            ? `Ya podés pasar a retirar tu orden en nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.`
+            : `Te contactaremos para acordar detalles de la entrega a realizar en ${order.address}.`
+        }
+        <br><br>
+        Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+        </p>`
+
         await sendEmail(
           order.email,
           'Pago confirmado',
-          `<strong>¡Ya está todo listo ${order.firstName}!</strong>
-          <p>Recibimos la confirmación de pago de Mercado Pago, <strong>recordá enviarnos tu comprobante de pago vía WhatsApp o Instagram si es que aún no lo hiciste.</strong>
-          <br>
-          ${
-            order.deliveryMethod === "pickup"
-              ? `Ya podés pasar a retirar tu orden en nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.`
-              : `Te contactaremos para acordar detalles de la entrega a realizar en ${order.address}.`
-          }
-          <br><br>
-          Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
-          </p>`
+          emailHTML
         )
       }
 
