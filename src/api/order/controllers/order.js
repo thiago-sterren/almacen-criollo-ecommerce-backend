@@ -28,6 +28,19 @@ function formatPrice(price) {
     return finalPrice
 }
 
+async function sendEmail(to, subject, html) {
+  try {
+    await resend.emails.send({
+      from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
+      to,
+      subject,
+      html
+    })
+  } catch (error) {
+    console.error("Error enviando email: ", error)
+  }
+}
+
 module.exports = {  
   async create(ctx) {
     try {
@@ -67,27 +80,17 @@ module.exports = {
       
       // 2. Si el método es efectivo -> devolver confirmación
       if (paymentMethod === "cash") {
-        (async function () {
-          const { data, error } = await resend.emails.send({
-            from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
-            to: [email],
-            subject: 'Orden realizada',
-            html: `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
-              <p>${deliveryMethod === "pickup" ?
-                `Ya podés pasar a retirar tu orden y realizar el pago de ${formatPrice(totalPrice)} por nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.` :
-                `Te contactaremos para acordar detalles de la entrega a realizar en ${address}. Total a pagar en el momento de entrega: ${formatPrice(totalPrice)}.`
-              }
-              <br><br>
-              Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
-              </p>`,
-          })
-
-          if (error) {
-            return console.error({ error })
+        sendEmail(email,
+          'Orden realizada',
+          `<strong>¡Gracias por elegirnos, ${firstName}!</strong>
+          <p>${deliveryMethod === "pickup" ?
+            `Ya podés pasar a retirar tu orden y realizar el pago de ${formatPrice(totalPrice)} por nuestro local en J. B. Justo 361. Horarios: 9 a 12 y 16:30 a 20 horas.` :
+            `Te contactaremos para acordar detalles de la entrega a realizar en ${address}. Total a pagar en el momento de entrega: ${formatPrice(totalPrice)}.`
           }
-
-          console.log({ data })
-        })()
+          <br><br>
+          Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)
+          </p>`
+        )
 
         ctx.status = 201
         return {
