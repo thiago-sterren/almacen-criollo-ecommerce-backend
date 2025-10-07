@@ -1,3 +1,20 @@
+const { Resend } = require("resend")
+
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+async function sendEmail(to, subject, html) {
+  try {
+    await resend.emails.send({
+      from: 'Almacén Criollo <noreply@almacencriollosunchales.com>',
+      to,
+      subject,
+      html
+    })
+  } catch (error) {
+    console.error("Error enviando email: ", error)
+  }
+}
+
 module.exports = {
   async beforeCreate(event) {
     try {
@@ -109,10 +126,34 @@ module.exports = {
             data: { stock: newStock },
           }, { transacting: trx })
 
-          // Notificar si el stock está bajo
-          if (newStock <= 5) {
-            console.warn(`⚠️ Stock bajo para ${product.productName}: ${newStock} unidades restantes.`)
-            // Opcional: enviar notificación por correo o a un sistema de monitoreo
+          // Enviar notificación por correo para cuando el stock es menor a 5
+          if (newStock <= 5 && newStock > 0) {
+            //console.warn(`⚠️ Stock bajo para ${product.productName}: ${newStock} unidades restantes.`)
+            const emailHTML = `
+            <div>
+              <strong>¡Stock bajo para ${product.productName}!</strong>
+              <p>Quedan apenas ${newStock} unidades de este producto en stock.</p>
+            </div>
+            `
+            sendEmail(
+              'almacencriolloecommerce@gmail.com',
+              'Quedan pocas unidades para este producto',
+              emailHTML
+            )
+          }
+          // Enviar notificación por correo para cuando el stock es 0
+          if (newStock = 0) {
+            const emailHTML = `
+            <div>
+              <strong>¡Te quedaste sin stock para ${product.productName}!</strong>
+              <p>Ya no quedan unidades de este producto en el inventario.</p>
+            </div>
+            `
+            sendEmail(
+              'almacencriolloecommerce@gmail.com',
+              'No hay unidades restantes para este producto',
+              emailHTML
+            )
           }
         }
       })
@@ -128,6 +169,15 @@ module.exports = {
     // Si el orderStatus se actualiza (por webhook de MP o manualmente) a "cancelled"
     if (result.orderStatus === "cancelled") {
       await strapi.service("api::order.order").restockProducts(result)
+      await sendEmail(
+        result.email,
+        `Tu orden #${result.id} ha sido cancelada`,
+        `<div>
+          <p>Lo sentimos, tu orden ha sido cancelada. Ante cualquier duda o reclamo, contactanos vía WhatsApp o Instagram.</p>
+          <br><br>
+          <p>Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)</p> 
+        </div>`
+      )
     }
   }
 }
