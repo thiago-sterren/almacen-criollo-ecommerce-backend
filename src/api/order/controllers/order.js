@@ -344,7 +344,7 @@ module.exports = {
           'Pago por Mercado Pago confirmado',
           `<div>
             <strong>¡Se ha confirmado el pago de la orden #${order.id}!</strong>
-            ${deliveryMethod === "pickup" ? '<p>Seleccionó la opción de retiro por Almacén Criollo.</p>' : `<p>Seleccionó la opción de delivery.</p>`}
+            ${order.deliveryMethod === "pickup" ? '<p>Seleccionó la opción de retiro por Almacén Criollo.</p>' : `<p>Seleccionó la opción de delivery.</p>`}
             <p>Chequea la base de datos para obtener la información del pedido. El ID de la orden es: ${order.id}.</p>
           </div>`
         )

@@ -135,21 +135,21 @@ module.exports = {
               <p>Quedan apenas ${newStock} unidades de este producto en stock.</p>
             </div>
             `
-            sendEmail(
+            await sendEmail(
               'almacencriolloecommerce@gmail.com',
               'Quedan pocas unidades para este producto',
               emailHTML
             )
           }
           // Enviar notificación por correo para cuando el stock es 0
-          if (newStock = 0) {
+          if (newStock === 0) {
             const emailHTML = `
             <div>
               <strong>¡Te quedaste sin stock para ${product.productName}!</strong>
               <p>Ya no quedan unidades de este producto en el inventario.</p>
             </div>
             `
-            sendEmail(
+            await sendEmail(
               'almacencriolloecommerce@gmail.com',
               'No hay unidades restantes para este producto',
               emailHTML
