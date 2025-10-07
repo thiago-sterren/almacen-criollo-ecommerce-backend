@@ -173,7 +173,7 @@ module.exports = {
         result.email,
         `Tu orden #${result.id} ha sido cancelada`,
         `<div>
-          <p>Lo sentimos, tu orden ha sido cancelada. Ante cualquier duda o reclamo, contactanos vía WhatsApp o Instagram.</p>
+          <p>Lo sentimos, tu orden ha sido cancelada.</p>
           <br><br>
           <p>Por favor, no responder a esta dirección de email. Ante cualquier duda, contactanos a nuestro WhatsApp o Instagram que podés encontrar en el pie de la misma página web en la que hiciste esta compra :)</p> 
         </div>`
